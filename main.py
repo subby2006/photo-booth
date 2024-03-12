@@ -64,10 +64,7 @@ def draw_error_message(message):
     # else:
         # cap.release()
  
-def main():
-    show_loading_screen()
-    pygame.time.wait(500)
-    
+def main():    
     screen.fill((0, 0, 0))
     font = pygame.font.Font(None, 36)
     text = font.render("Press the button to begin.", True, (255, 255, 255))
@@ -214,10 +211,10 @@ def show_frame(frame):
     # Display Yes/No question at the bottom of the screen
     font = pygame.font.Font(None, 36)
     text_yes = font.render("Yes", True, (255, 255, 255))
-    text_yes_rect = text_yes.get_rect(center=(screen_width // 6, screen_height - 50))
+    text_yes_rect = text_yes.get_rect(center=(screen_width // 4, screen_height - 50))
     screen.blit(text_yes, text_yes_rect)
     text_no = font.render("No", True, (255, 255, 255))
-    text_no_rect = text_no.get_rect(center=(3 * screen_width // 6, screen_height - 50))
+    text_no_rect = text_no.get_rect(center=(3 * screen_width // 4, screen_height - 50))
     screen.blit(text_no, text_no_rect)
     pygame.display.flip()
 
@@ -229,15 +226,67 @@ def show_frame(frame):
                 pygame.quit()
                 waiting = False
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_y:
+                if event.key == pygame.K_RETURN:
                     style_selector(frame)
                     waiting = False
-                elif event.key == pygame.K_n:
+                elif event.key == pygame.K_SPACE:
                     main()  # Return back to the camera view function
                     waiting = False
 
-def style_selector():
-    pass
+def style_selector(frame):
+    styles = ["painting", "anime", "sketch", "fantasy", "none"]
+
+    # Draw the main box
+    box_width = 400
+    box_height = 300
+    box_x = (screen_width - box_width) // 2
+    box_y = (screen_height - box_height) // 2
+    pygame.draw.rect(screen, (255, 255, 255), (box_x, box_y, box_width, box_height))
+
+    # Draw the title
+    font = pygame.font.Font(None, 48)
+    message = font.render("Choose a style", True, (0, 0, 0))
+    message_rect = message.get_rect(center=(screen_width // 2, box_y + 20))
+    screen.blit(message, message_rect)
+
+    # Draw the style options
+    font = pygame.font.Font(None, 36)
+    text_y = box_y + 20
+    selected_index = 0
+    for index, style in enumerate(styles):
+        text_color = (0, 0, 0) if index != selected_index else (255, 0, 0)
+        text = font.render(style.capitalize(), True, text_color)
+        text_rect = text.get_rect(center=(screen_width // 2, text_y))
+        screen.blit(text, text_rect)
+        text_y += 50
+
+    pygame.display.flip()
+
+    # Wait for user response
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return "none"  # Quitting, default to "none" style
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_DOWN:
+                    selected_index = (selected_index + 1) % len(styles)
+                elif event.key == pygame.K_UP:
+                    selected_index = (selected_index - 1) % len(styles)
+                elif event.key == pygame.K_RETURN:
+                    return styles[selected_index, frame]
+                
+        pygame.draw.rect(screen, (255, 255, 255), (box_x, box_y, box_width, box_height))
+        text_y = box_y + 20
+        for index, style in enumerate(styles):
+            text_color = (0, 0, 0) if index != selected_index else (255, 0, 0)
+            text = font.render(style.capitalize(), True, text_color)
+            text_rect = text.get_rect(center=(screen_width // 2, text_y))
+            screen.blit(text, text_rect)
+            text_y += 50
+
+        pygame.display.flip()
+
 
 # Run the game
 if __name__ == "__main__":
