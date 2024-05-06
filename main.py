@@ -84,12 +84,13 @@ def main():
             if event.type == pygame.QUIT:
                 waiting = False
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
+                if event.key == pygame.K_z:
                     waiting = False
     
     show_loading_screen()
     captured_frame = camera_view()
     show_frame(captured_frame) # WORKS!!!
+
 
     
 def camera_view():
@@ -189,7 +190,7 @@ def camera_view():
                 pygame.quit()
                 return
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
+                if event.key == pygame.K_c:
                     # capture_sound.play()
                     captured_frame = frame.copy()
                     print("Frame captured.")
@@ -210,10 +211,10 @@ def show_frame(frame):
 
     # Display Yes/No question at the bottom of the screen
     font = pygame.font.Font(None, 36)
-    text_yes = font.render("Yes", True, (255, 255, 255))
+    text_yes = font.render("Yes (up)", True, (255, 255, 255))
     text_yes_rect = text_yes.get_rect(center=(screen_width // 4, screen_height - 50))
     screen.blit(text_yes, text_yes_rect)
-    text_no = font.render("No", True, (255, 255, 255))
+    text_no = font.render("No (down)", True, (255, 255, 255))
     text_no_rect = text_no.get_rect(center=(3 * screen_width // 4, screen_height - 50))
     screen.blit(text_no, text_no_rect)
     pygame.display.flip()
@@ -226,10 +227,10 @@ def show_frame(frame):
                 pygame.quit()
                 waiting = False
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_RETURN:
+                if event.key == pygame.K_w:
                     style_selector(frame)
                     waiting = False
-                elif event.key == pygame.K_SPACE:
+                elif event.key == pygame.K_d:
                     main()  # Return back to the camera view function
                     waiting = False
 
@@ -269,12 +270,15 @@ def style_selector(frame):
                 pygame.quit()
                 return "none"  # Quitting, default to "none" style
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_DOWN:
+                if event.key == pygame.K_s:
                     selected_index = (selected_index + 1) % len(styles)
-                elif event.key == pygame.K_UP:
+                elif event.key == pygame.K_w:
                     selected_index = (selected_index - 1) % len(styles)
-                elif event.key == pygame.K_RETURN:
-                    return styles[selected_index, frame]
+                elif event.key == pygame.K_z:
+                    # return styles[selected_index, frame]
+                    selected_style = styles[selected_index]
+                    # return selected_style, frame
+                    apply_style(selected_style, frame)
                 
         pygame.draw.rect(screen, (255, 255, 255), (box_x, box_y, box_width, box_height))
         text_y = box_y + 20
@@ -287,6 +291,43 @@ def style_selector(frame):
 
         pygame.display.flip()
 
+def apply_style(selected_index, frame):
+    if selected_index == "none":    
+        print("none")
+        show_thankyou(frame)
+    elif selected_index == "painting":
+        print("painting")
+
+    elif selected_index == "anime":
+        print("anime")
+    
+    elif selected_index == "sketch":
+        print("sketch")
+
+    elif selected_index == "fantasy":
+        print("fantasy")
+
+def show_thankyou(frame):
+    screen.fill((0, 100, 0))  # Clear the screen
+    font = pygame.font.Font(None, 36)
+    text = font.render("Looks good", True, (255, 255, 255))
+    text_rect = text.get_rect(center=(screen_width // 2, 50))
+    screen.blit(text, text_rect)
+    # Display the captured frame
+    if frame is not None:
+        frame_rect = frame.get_rect(center=(screen_width // 2, screen_height // 2))
+        screen.blit(frame, frame_rect)
+
+    font = pygame.font.Font(None, 36)
+    text_yes = font.render("Thank you for using CrosseBooth", True, (255, 255, 255))
+    text_yes_rect = text_yes.get_rect(center=(screen_width // 2, screen_height - 50))
+    screen.blit(text_yes, text_yes_rect)
+    pygame.display.flip()
+    pygame.time.delay(5000)
+    main()
+
+    # do something for the thumbs up image
+    
 
 # Run the game
 if __name__ == "__main__":
