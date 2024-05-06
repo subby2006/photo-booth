@@ -3,6 +3,10 @@ import pygame
 import cv2
 import sys
 import numpy as np
+import pygame.surfarray
+import webuiapi
+from PIL import Image
+import requests
 # import test_mode
 
 # Initialize Pygame
@@ -16,6 +20,9 @@ screen_height = screen_info.current_h
 # Set up the screen
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
 pygame.display.set_caption("CrosseBooth")
+
+# automatic1111 webui api
+api = webuiapi.WebUIApi(host='127.0.0.1', port=7860, sampler='Euler a', steps=20) # REMEMBER TO CHANGE HOST ADDRESS TO YOURS
 
 # Function to display loading screen
 def show_loading_screen():
@@ -292,20 +299,33 @@ def style_selector(frame):
         pygame.display.flip()
 
 def apply_style(selected_index, frame):
-    if selected_index == "none":    
-        print("none")
-        show_thankyou(frame)
-    elif selected_index == "painting":
-        print("painting")
-
-    elif selected_index == "anime":
-        print("anime")
-    
-    elif selected_index == "sketch":
-        print("sketch")
-
-    elif selected_index == "fantasy":
-        print("fantasy")
+    try:
+        if selected_index == "none":    
+            print("none")
+            show_thankyou(frame)
+        elif selected_index == "painting":
+            print("painting")
+            img_output = api.img2img(images=[frame], negative_prompt="rating_questionable, rating_explicit", styles=["painting"], cfg_scale=6, clip_skip=2)
+            show_thankyou(img_output[0])
+        elif selected_index == "anime":
+            print("anime")
+            img_output = api.img2img(images=[frame], negative_prompt="rating_questionable, rating_explicit", styles=["anime"], cfg_scale=6, clip_skip=2)
+            show_thankyou(img_output[0])
+        elif selected_index == "sketch":
+            print("sketch")
+            
+            frame_array = pygame.surfarray.array3d(frame)
+            pil_image = Image.fromarray(frame_array)
+            img_output = api.img2img(images=[pil_image], negative_prompt="rating_questionable, rating_explicit", styles=["sketch"], cfg_scale=6)
+            convert_array = [pygame.surfarray.make_surface(np.array(img)) for img in img_output]
+            show_thankyou(convert_array)
+        elif selected_index == "fantasy":
+            print("fantasy")
+            img_output = api.img2img(images=[frame], negative_prompt="rating_questionable, rating_explicit", styles=["fantasy"], cfg_scale=6, clip_skip=2)
+            show_thankyou(img_output[0])
+    except requests.exceptions.ConnectionError:
+        waiting = False
+        draw_error_message("Cannot reach backend. Check if AUTOMATIC1111 server is running.")
 
 def show_thankyou(frame):
     screen.fill((0, 100, 0))  # Clear the screen
