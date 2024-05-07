@@ -52,7 +52,7 @@ void loop() {
     delay(500);
     digitalWrite(flash1, LOW);
     digitalWrite(flash2, LOW);
-    Keyboard.write('S'); // change all the keyboard writes to their respective keypresses defined in the python script
+    Keyboard.write('C'); // change all the keyboard writes to their respective keypresses defined in the python script
     delay(250);
     digitalWrite(flash1, HIGH);
     digitalWrite(flash2, HIGH);
@@ -61,19 +61,19 @@ void loop() {
 
   if (selectButtonState == LOW) {
     Serial.print("SELECT");
-    // Keyboard.write('Z');
+    Keyboard.write('Z');
     delay(500); // debounce
   }
 
   if (upButtonState == LOW) {
     Serial.print("UP");
-    // Keyboard.write('U');
+    Keyboard.write('U');
     delay(500); // debounce
   }
 
   if (downButtonState == LOW) {
     Serial.print("DOWN");
-    // Keyboard.write('D');
+    Keyboard.write('D');
     delay(500); // debounce
   }
 }
