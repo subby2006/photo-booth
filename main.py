@@ -22,7 +22,7 @@ screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREE
 pygame.display.set_caption("CrosseBooth")
 
 # automatic1111 webui api
-api = webuiapi.WebUIApi(host='127.0.0.1', port=7860, sampler='Euler a', steps=20) # REMEMBER TO CHANGE HOST ADDRESS TO YOURS
+api = webuiapi.WebUIApi(host='127.0.0.1', port=7860, sampler='Euler a', steps=30) # REMEMBER TO CHANGE HOST ADDRESS TO YOURS
 
 # Function to display loading screen
 def show_loading_screen():
@@ -302,27 +302,35 @@ def apply_style(selected_index, frame):
     try:
         if selected_index == "none":    
             print("none")
-            show_thankyou(frame)
+            show_thankyou(convert_array)
         elif selected_index == "painting":
             print("painting")
-            img_output = api.img2img(images=[frame], negative_prompt="rating_questionable, rating_explicit", styles=["painting"], cfg_scale=6, clip_skip=2)
-            show_thankyou(img_output[0])
-        elif selected_index == "anime":
-            print("anime")
-            img_output = api.img2img(images=[frame], negative_prompt="rating_questionable, rating_explicit", styles=["anime"], cfg_scale=6, clip_skip=2)
-            show_thankyou(img_output[0])
-        elif selected_index == "sketch":
-            print("sketch")
-            
             frame_array = pygame.surfarray.array3d(frame)
             pil_image = Image.fromarray(frame_array)
-            img_output = api.img2img(images=[pil_image], negative_prompt="rating_questionable, rating_explicit", styles=["sketch"], cfg_scale=6)
-            convert_array = [pygame.surfarray.make_surface(np.array(img)) for img in img_output]
+            img_output = api.img2img(images=[pil_image], negative_prompt="rating_questionable, rating_explicit", styles=["painting"], cfg_scale=6, clip_skip=2)
+            convert_array = [pygame.surfarray.make_surface(np.array(img_output.images[0]))]
+            show_thankyou(convert_array)
+        elif selected_index == "anime":
+            print("anime")
+            frame_array = pygame.surfarray.array3d(frame)
+            pil_image = Image.fromarray(frame_array)
+            img_output = api.img2img(images=[pil_image], negative_prompt="rating_questionable, rating_explicit", styles=["anime"], cfg_scale=6, clip_skip=2)
+            convert_array = [pygame.surfarray.make_surface(np.array(img_output.images[0]))]
+            show_thankyou(convert_array)
+        elif selected_index == "sketch":
+            print("sketch")
+            frame_array = pygame.surfarray.array3d(frame)
+            pil_image = Image.fromarray(frame_array)
+            img_output = api.img2img(images=[pil_image], prompt="medival painting, medival fantasy painting", negative_prompt="rating_questionable, rating_explicit", cfg_scale=6, denoising_strength=0.4)
+            convert_array = [pygame.surfarray.make_surface(np.array(img_output.images[0]))]
             show_thankyou(convert_array)
         elif selected_index == "fantasy":
             print("fantasy")
-            img_output = api.img2img(images=[frame], negative_prompt="rating_questionable, rating_explicit", styles=["fantasy"], cfg_scale=6, clip_skip=2)
-            show_thankyou(img_output[0])
+            frame_array = pygame.surfarray.array3d(frame)
+            pil_image = Image.fromarray(frame_array)
+            img_output = api.img2img(images=[pil_image], negative_prompt="rating_questionable, rating_explicit", styles=["fantasy"], cfg_scale=6, clip_skip=2)
+            convert_array = [pygame.surfarray.make_surface(np.array(img_output.images[0]))]
+            show_thankyou(convert_array)
     except requests.exceptions.ConnectionError:
         waiting = False
         draw_error_message("Cannot reach backend. Check if AUTOMATIC1111 server is running.")
@@ -335,15 +343,21 @@ def show_thankyou(frame):
     screen.blit(text, text_rect)
     # Display the captured frame
     if frame is not None:
+        if isinstance(frame, list):
+            frame = frame[0]
         frame_rect = frame.get_rect(center=(screen_width // 2, screen_height // 2))
         screen.blit(frame, frame_rect)
+        
+        
+        # frame_rect = frame.get_rect(center=(screen_width // 2, screen_height // 2))
+        # screen.blit(frame, frame_rect)
 
     font = pygame.font.Font(None, 36)
     text_yes = font.render("Thank you for using CrosseBooth", True, (255, 255, 255))
     text_yes_rect = text_yes.get_rect(center=(screen_width // 2, screen_height - 50))
     screen.blit(text_yes, text_yes_rect)
     pygame.display.flip()
-    pygame.time.delay(5000)
+    pygame.time.delay(10000)
     main()
 
     # do something for the thumbs up image
